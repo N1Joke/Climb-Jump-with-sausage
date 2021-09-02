@@ -21,6 +21,9 @@ public class LevelBuilder : MonoBehaviour
     private ChankEndChecker _chankEndChecker;
     private float _firstOffsetX = 0;
 
+    public delegate void RequireReload();
+    public RequireReload OnRequireReload;
+
     private void Start()
     {
         BuildChanck();
@@ -50,6 +53,7 @@ public class LevelBuilder : MonoBehaviour
 
                 GameObject deathTrigger = Instantiate(_deathTrigger, transform);
                 deathTrigger.transform.position = new Vector3(transform.position.x + _DistanceBetweenLevels / 2, transform.position.y, transform.transform.position.z);
+                deathTrigger.GetComponent<DeathTrigger>().OnDeathTrigger += SneneReload;
             }
         }
     }
@@ -58,5 +62,10 @@ public class LevelBuilder : MonoBehaviour
     {
         _firstOffsetX = _DistanceBetweenLevels;
         BuildChanck();
+    }
+
+    private void SneneReload()
+    {
+        OnRequireReload?.Invoke();
     }
 }
