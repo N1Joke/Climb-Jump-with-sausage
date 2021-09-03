@@ -17,6 +17,11 @@ public class LevelBuilder : MonoBehaviour
     [Header("")]
     [SerializeField] private int _minYOffsetPlatform = 1;
     [SerializeField] private int _maxYOffsetPlatform = 5;
+    [Header("Start death triggers")]
+    [SerializeField] private DeathTrigger[] _deathTriggers;
+    [Header("Vertical trigger settings")]
+    [SerializeField] private Vector3 _rotation = new Vector3(0, 0, 90);
+    [SerializeField] private Vector3 _localScale = new Vector3(150, 1, 2.9f);
 
     private ChankEndChecker _chankEndChecker;
     private float _firstOffsetX = 0;
@@ -26,7 +31,16 @@ public class LevelBuilder : MonoBehaviour
 
     private void Start()
     {
+        SubscribeDeathTrigger();
         BuildChanck();
+    }
+
+    private void SubscribeDeathTrigger()
+    {
+        foreach (DeathTrigger trigger in _deathTriggers)
+        {
+            trigger.OnDeathTrigger += SneneReload;
+        }
     }
 
     private void BuildChanck()
@@ -51,8 +65,16 @@ public class LevelBuilder : MonoBehaviour
                 _chankEndChecker = checkBox.GetComponent<ChankEndChecker>();
                 _chankEndChecker.OnEndOfChanckDelegare += EndLevel;
 
+                //Vertical trigger
+                GameObject deathTriggerVertical = Instantiate(_deathTrigger, checkBox.transform);
+                deathTriggerVertical.transform.localScale = _localScale;
+                deathTriggerVertical.transform.rotation = Quaternion.Euler(_rotation);
+                deathTriggerVertical.transform.position = new Vector3(_currentPlatform.position.x + _deathTrigger.transform.localScale.x, _currentPlatform.position.y + deathTriggerVertical.transform.localScale.x / 2, _currentPlatform.position.z);
+                deathTriggerVertical.GetComponent<DeathTrigger>().OnDeathTrigger += SneneReload;
+
+                //Horizontal trigger
                 GameObject deathTrigger = Instantiate(_deathTrigger, transform);
-                deathTrigger.transform.position = new Vector3(transform.position.x + _DistanceBetweenLevels / 2, transform.position.y, transform.transform.position.z);
+                deathTrigger.transform.position = new Vector3(_currentPlatform.position.x + _deathTrigger.transform.localScale.x / 2, _currentPlatform.position.y, _currentPlatform.position.z);
                 deathTrigger.GetComponent<DeathTrigger>().OnDeathTrigger += SneneReload;
             }
         }
