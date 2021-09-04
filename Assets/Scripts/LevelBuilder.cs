@@ -11,12 +11,17 @@ public class LevelBuilder : MonoBehaviour
     [SerializeField] private GameObject _endLevelCheckBox;
     [SerializeField] private float _CheckBoxOffsetY = 1;
     [SerializeField] private GameObject _deathTrigger;
+    [SerializeField] private GameObject _slicedCube;
+    [SerializeField] private int _chanceSlicedBox;
     [Header("Platform settrings")]
     [SerializeField] private int _minXLenthPlatform = 1;
     [SerializeField] private int _maxXLenthPlatform = 6;
     [Header("")]
-    [SerializeField] private int _minYOffsetPlatform = 1;
+    [SerializeField] private int _minYOffsetPlatform = 2;
     [SerializeField] private int _maxYOffsetPlatform = 5;
+    [Header("")]
+    [SerializeField] private int _minYHeightSlicedBox = 1;
+    [SerializeField] private int _maxYHeightSlicedBox = 2;
     [Header("Start death triggers")]
     [SerializeField] private DeathTrigger[] _deathTriggers;
     [Header("Vertical trigger settings")]
@@ -53,10 +58,19 @@ public class LevelBuilder : MonoBehaviour
             float offsetPlatformY = Random.Range(_minYOffsetPlatform, _maxYOffsetPlatform);
 
             platform.transform.localScale = new Vector3(lengthPlatformX, platform.transform.localScale.y, platform.transform.localScale.z);
-
             platform.transform.position = new Vector3(_currentPlatform.position.x + _currentPlatform.localScale.x / 2 + lengthPlatformX / 2 + _firstOffsetX, _currentPlatform.position.y + offsetPlatformY, platform.transform.position.z);
             _firstOffsetX = 0;
             _currentPlatform = platform.transform;
+
+            int chanceSlicedBox = Random.Range(0, 100);
+            if (chanceSlicedBox < _chanceSlicedBox)
+            {
+                GameObject slicedCube = Instantiate(_slicedCube, transform);
+
+                slicedCube.transform.localScale = new Vector3(slicedCube.transform.localScale.x, Random.Range(_minYHeightSlicedBox, _maxYHeightSlicedBox) * 0.5f, _currentPlatform.transform.localScale.x / 2);
+
+                slicedCube.transform.position = new Vector3(_currentPlatform.position.x, _currentPlatform.position.y + _currentPlatform.localScale.y / 2 + slicedCube.transform.localScale.y, _currentPlatform.position.z);
+            }
 
             if (i == _amountOfPlatforms - 1)
             {
